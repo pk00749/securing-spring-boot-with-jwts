@@ -146,13 +146,10 @@ class TokenAuthenticationService {
 	static final String SECRET = "P@ssw02d";            // JWT密码
 	static final String TOKEN_PREFIX = "Bearer";        // Token前缀
 	static final String HEADER_STRING = "Authorization";// 存放Token的Header Key
-//    static final SecretKey secretKey2 = generalKey();
 
-    public static SecretKey generalKey() {
-        String stringKey = "abcdefghijklmnopqrstuvwxyz";
-
+    public static SecretKey generalKey(String secret) {
         // 本地的密码解码
-        byte[] encodedKey = Base64.decodeBase64(stringKey);
+        byte[] encodedKey = Base64.decodeBase64(secret);
 
         // 根据给定的字节数组使用AES加密算法构造一个密钥
         SecretKey key = new SecretKeySpec(encodedKey, 0, encodedKey.length, "HmacSHA256");
@@ -161,7 +158,7 @@ class TokenAuthenticationService {
     }
 
 	static void addAuthentication(HttpServletResponse response, String username) {
-        SecretKey key = generalKey();
+        SecretKey key = generalKey(SECRET);
         // 生成JWT
 		String JWT = Jwts.builder()
                 // 保存权限（角色）
@@ -187,7 +184,7 @@ class TokenAuthenticationService {
 	static Authentication getAuthentication(HttpServletRequest request) {
         // 从Header中拿到token
         String token = request.getHeader(HEADER_STRING);
-        SecretKey key = generalKey();
+        SecretKey key = generalKey(SECRET);
 
 		if (token != null) {
             // 解析 Token
