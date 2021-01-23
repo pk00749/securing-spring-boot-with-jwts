@@ -29,6 +29,8 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.filter.GenericFilterBean;
 
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -37,6 +39,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.*;
+import org.apache.tomcat.util.codec.binary.Base64;
 
 
 @SpringBootApplication
@@ -143,8 +146,22 @@ class TokenAuthenticationService {
 	static final String SECRET = "P@ssw02d";            // JWT密码
 	static final String TOKEN_PREFIX = "Bearer";        // Token前缀
 	static final String HEADER_STRING = "Authorization";// 存放Token的Header Key
+//    static final SecretKey secretKey2 = generalKey();
+
+    public static SecretKey generalKey() {
+        String stringKey = "eyJhbGciOiJIUzUxMiJ9eyJhdXRob3JpdGllcyI6IlJPTEVfQURNSU4sQVVUSF9XUklURSIsInN1YiI6ImFkbWluIiwiZXhwIjoxNDkzNzgyMjQwfQHNfV1CU2CdAnBTH682C5-KOfr2P71xr9PYLaLpDVhOw8KWWSJ0lBo0BCq4LoNwsK_Y3-W3avgbJb0jW9FNYDRQ";
+
+        // 本地的密码解码
+        byte[] encodedKey = Base64.decodeBase64(stringKey);
+
+        // 根据给定的字节数组使用AES加密算法构造一个密钥
+        SecretKey key = new SecretKeySpec(encodedKey, 0, encodedKey.length, "HmacSHA256");
+
+        return key;
+    }
 
 	static void addAuthentication(HttpServletResponse response, String username) {
+        SecretKey key = generalKey();
         // 生成JWT
 		String JWT = Jwts.builder()
                 // 保存权限（角色）
@@ -154,7 +171,7 @@ class TokenAuthenticationService {
                 // 有效期设置
 				.setExpiration(new Date(System.currentTimeMillis() + EXPIRATIONTIME))
                 // 签名设置
-				.signWith(SignatureAlgorithm.HS512, SECRET)
+				.signWith(SignatureAlgorithm.HS256, key)
 				.compact();
 
 		// 将 JWT 写入 body
@@ -170,12 +187,13 @@ class TokenAuthenticationService {
 	static Authentication getAuthentication(HttpServletRequest request) {
         // 从Header中拿到token
         String token = request.getHeader(HEADER_STRING);
+        SecretKey key = generalKey();
 
 		if (token != null) {
             // 解析 Token
             Claims claims = Jwts.parser()
                     // 验签
-					.setSigningKey(SECRET)
+					.setSigningKey(key)
                     // 去掉 Bearer
 					.parseClaimsJws(token.replace(TOKEN_PREFIX, ""))
 					.getBody();
