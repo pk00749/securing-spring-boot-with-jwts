@@ -149,7 +149,7 @@ class TokenAuthenticationService {
 //    static final SecretKey secretKey2 = generalKey();
 
     public static SecretKey generalKey() {
-        String stringKey = "eyJhbGciOiJIUzUxMiJ9eyJhdXRob3JpdGllcyI6IlJPTEVfQURNSU4sQVVUSF9XUklURSIsInN1YiI6ImFkbWluIiwiZXhwIjoxNDkzNzgyMjQwfQHNfV1CU2CdAnBTH682C5-KOfr2P71xr9PYLaLpDVhOw8KWWSJ0lBo0BCq4LoNwsK_Y3-W3avgbJb0jW9FNYDRQ";
+        String stringKey = "abcdefghijklmnopqrstuvwxyz";
 
         // 本地的密码解码
         byte[] encodedKey = Base64.decodeBase64(stringKey);
