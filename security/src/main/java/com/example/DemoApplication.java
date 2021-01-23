@@ -255,13 +255,13 @@ class JWTLoginFilter extends AbstractAuthenticationProcessingFilter {
 			throws AuthenticationException, IOException, ServletException {
 
 	    // JSON反序列化成 AccountCredentials
-		AccountCredentials creds = new ObjectMapper().readValue(req.getInputStream(), AccountCredentials.class);
+		AccountCredentials accountCredentials = new ObjectMapper().readValue(req.getInputStream(), AccountCredentials.class);
 
         // 返回一个验证令牌
         return getAuthenticationManager().authenticate(
 				new UsernamePasswordAuthenticationToken(
-						creds.getUsername(),
-						creds.getPassword()
+                        accountCredentials.getUsername(),
+                        accountCredentials.getPassword()
 				)
 		);
 	}
